@@ -196,6 +196,34 @@ void Noise(void);
 VSP_SOLVER VSP_VLM_;
 VSP_SOLVER &VSP_VLM(void) { return VSP_VLM_; };
 
+VSPAERO_DOUBLE readPitchRateFromFile(void) 
+{
+    VSPAERO_DOUBLE q;
+    FILE *inp;
+
+    if (inp = fopen("/pitch_rate.txt", "r")) 
+    {
+        if (fscanf(inp, "%lf", &q) == 1) 
+        {
+            printf("success \n");
+        }
+        else 
+        {
+            printf("fail to read \n");
+            q = 0.0;
+        }
+        fclose(inp);
+    }
+    else 
+    {
+        printf("file doesnt exist \n");
+        q = 0.0;
+    }
+    return q;
+}
+
+
+
 // The code...
 
 /*##############################################################################
@@ -2093,6 +2121,8 @@ void Solve(void)
 
     ApplyControlDeflections();
     
+    VSPAERO_DOUBLE pitch_rate = readPitchRateFromFile();
+    
     NumCases = NumberOfBetas_ * NumberOfMachs_ * NumberOfAoAs_ * NumberOfReCrefs_;
     
     CaseList = new int***[NumberOfBetas_ + 1];
@@ -2134,7 +2164,7 @@ void Solve(void)
              VSP_VLM().AngleOfAttack() =  AoAList_[k] * TORAD;
       
              VSP_VLM().RotationalRate_p() = 0.;
-             VSP_VLM().RotationalRate_q() = 0.;
+             VSP_VLM().RotationalRate_q() = pitch_rate;
              VSP_VLM().RotationalRate_r() = 0.;
 
              // Set a comment line
